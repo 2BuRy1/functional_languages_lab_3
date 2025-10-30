@@ -1,0 +1,20 @@
+# Stack / Cabal artifacts
+.stack-work/
+dist/
+dist-newstyle/
+
+# IDE/editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+
+# Generated binaries
+functional-languages-lab3
+functional-languages-lab3.exe
+
+# Logs / misc
+*.log

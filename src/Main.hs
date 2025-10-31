@@ -1,11 +1,10 @@
 module Main (main) where
 
+import App
 import System.Environment (getArgs)
 import System.Exit (exitFailure)
 import System.IO (hPutStrLn, isEOF, stderr)
 import Text.Read (readMaybe)
-
-import App
 import Types
 
 main :: IO ()
@@ -27,9 +26,8 @@ runProgram opts = loop [] (initialAlgoStates (optAlgorithms opts))
     loop points states = do
       eof <- isEOF
       if eof
-        then do
+        then
           mapM_ (putStrLn . renderLine) (snd (advanceAlgorithms step points states))
-          pure ()
         else do
           line <- getLine
           case parsePoint line of
@@ -59,13 +57,13 @@ parsePoint :: String -> Either String (Maybe Point)
 parsePoint raw =
   let cleaned = map replaceDelimiter raw
       tokens = words cleaned
-  in case tokens of
-       [] -> Right Nothing
-       [sx, sy] ->
-         case (readMaybe sx, readMaybe sy) of
-           (Just x, Just y) -> Right (Just (Point x y))
-           _ -> Left ("Невозможно прочитать точку: " ++ raw)
-       _ -> Left ("Некорректный формат строки: " ++ raw)
+   in case tokens of
+        [] -> Right Nothing
+        [sx, sy] ->
+          case (readMaybe sx, readMaybe sy) of
+            (Just x, Just y) -> Right (Just (Point x y))
+            _ -> Left ("Невозможно прочитать точку: " ++ raw)
+        _ -> Left ("Некорректный формат строки: " ++ raw)
   where
     replaceDelimiter ';' = ' '
     replaceDelimiter other = other

@@ -1,9 +1,10 @@
 module Types
-  ( Point(..)
-  ) where
+  ( Point (..),
+  )
+where
 
 data Point = Point
-  { px :: Double
-  , py :: Double
+  { px :: Double,
+    py :: Double
   }
   deriving (Show, Eq)

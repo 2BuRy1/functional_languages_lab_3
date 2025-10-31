@@ -1,11 +1,12 @@
 module Interpolation
-  ( Algorithm(..)
-  , algorithmName
-  , linearValue
-  , newtonValue
-  ) where
+  ( Algorithm (..),
+    algorithmName,
+    linearValue,
+    newtonValue,
+  )
+where
 
-import Types (Point(..))
+import Types (Point (..))
 
 data Algorithm
   = AlgLinear
@@ -19,10 +20,10 @@ algorithmName (AlgNewton _) = "newton"
 linearValue :: [Point] -> Double -> Maybe Double
 linearValue [] _ = Nothing
 linearValue [_] _ = Nothing
-linearValue (p1:p2:rest) x
+linearValue (p1 : p2 : rest) x
   | x < x1 = Nothing
   | x <= x2 && x2 > x1 = Just (y1 + (y2 - y1) * (x - x1) / (x2 - x1))
-  | otherwise = linearValue (p2:rest) x
+  | otherwise = linearValue (p2 : rest) x
   where
     x1 = px p1
     y1 = py p1
@@ -68,11 +69,12 @@ dividedDifferences xs ys = go ys 0
     n = length xs
 
     go [] _ = []
-    go current@(c:_) level
+    go current@(c : _) level
       | level >= n = []
       | otherwise =
-          let next = [ (current !! (i + 1) - current !! i)
-                        / (xs !! (i + level + 1) - xs !! i)
-                      | i <- [0 .. n - level - 2]
-                      ]
-          in c : go next (level + 1)
+          let next =
+                [ (current !! (i + 1) - current !! i)
+                    / (xs !! (i + level + 1) - xs !! i)
+                | i <- [0 .. n - level - 2]
+                ]
+           in c : go next (level + 1)

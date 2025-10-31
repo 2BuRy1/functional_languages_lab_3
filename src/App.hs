@@ -1,22 +1,22 @@
 module App
-  ( Options(..)
-  , AlgoState(..)
-  , Output
-  , parseArgs
-  , initialAlgoStates
-  , advanceAlgorithms
-  , simulateSequential
-  , formatLine
-  ) where
-
-import Text.Read (readMaybe)
+  ( Options (..),
+    AlgoState (..),
+    Output,
+    parseArgs,
+    initialAlgoStates,
+    advanceAlgorithms,
+    simulateSequential,
+    formatLine,
+  )
+where
 
 import Interpolation
-import Types (Point(..))
+import Text.Read (readMaybe)
+import Types (Point (..))
 
 data Options = Options
-  { optStep :: Double
-  , optAlgorithms :: [Algorithm]
+  { optStep :: Double,
+    optAlgorithms :: [Algorithm]
   }
   deriving (Show)
 
@@ -31,30 +31,30 @@ parseArgs args =
     Left err -> Left err
     Right opts -> checkResult opts
   where
-    defaultOptions = Options { optStep = 1.0, optAlgorithms = [] }
+    defaultOptions = Options {optStep = 1.0, optAlgorithms = []}
 
     walk :: [String] -> Options -> Either String Options
     walk [] opts = Right opts
-    walk ("--linear":rest) opts =
+    walk ("--linear" : rest) opts =
       walk rest (addAlgorithm AlgLinear opts)
-    walk ("--newton":value:rest) opts =
+    walk ("--newton" : value : rest) opts =
       case readMaybe value of
         Just n | n >= 2 -> walk rest (addAlgorithm (AlgNewton n) opts)
         _ -> Left "Флаг --newton требует целое число >= 2"
     walk ["--newton"] _ = Left "Флаг --newton требует параметр"
-    walk ("--step":value:rest) opts =
+    walk ("--step" : value : rest) opts =
       case readMaybe value of
-        Just s | s > 0 -> walk rest (opts { optStep = s })
+        Just s | s > 0 -> walk rest (opts {optStep = s})
         _ -> Left "Флаг --step требует положительное число"
     walk ["--step"] _ = Left "Флаг --step требует параметр"
-    walk ("-h":_) _ = Left ""
-    walk ("--help":_) _ = Left ""
-    walk (unknown:_) _ = Left ("Неизвестный аргумент: " ++ unknown)
+    walk ("-h" : _) _ = Left ""
+    walk ("--help" : _) _ = Left ""
+    walk (unknown : _) _ = Left ("Неизвестный аргумент: " ++ unknown)
 
     addAlgorithm :: Algorithm -> Options -> Options
     addAlgorithm alg opts
       | alg `elem` optAlgorithms opts = opts
-      | otherwise = opts { optAlgorithms = optAlgorithms opts ++ [alg] }
+      | otherwise = opts {optAlgorithms = optAlgorithms opts ++ [alg]}
 
     checkResult :: Options -> Either String Options
     checkResult opts
@@ -67,14 +67,14 @@ initialAlgoStates algorithms = [AlgoState alg Nothing | alg <- algorithms]
 
 advanceAlgorithms :: Double -> [Point] -> [AlgoState] -> ([AlgoState], [Output])
 advanceAlgorithms _ _ [] = ([], [])
-advanceAlgorithms step pts (state:rest) =
+advanceAlgorithms step pts (state : rest) =
   let (state', outputs) = advanceOne step pts state
       (rest', outputsRest) = advanceAlgorithms step pts rest
    in (state' : rest', outputs ++ outputsRest)
 
 advanceOne :: Double -> [Point] -> AlgoState -> (AlgoState, [Output])
 advanceOne _ [] st = (st, [])
-advanceOne step pts@(first:_) (AlgoState kind nextX) =
+advanceOne step pts@(first : _) (AlgoState kind nextX) =
   let startX = case nextX of
         Nothing -> px first
         Just x -> x
@@ -87,8 +87,8 @@ advanceOne step pts@(first:_) (AlgoState kind nextX) =
               Just value ->
                 let nextValue = current + step
                     newOutputs = outputs ++ [(kind, current, value)]
-                in loop nextValue newOutputs
-    in loop startX []
+                 in loop nextValue newOutputs
+   in loop startX []
 
 calculate :: Algorithm -> [Point] -> Double -> Maybe Double
 calculate AlgLinear = linearValue
@@ -98,11 +98,11 @@ formatLine :: Algorithm -> Double -> Double -> String
 formatLine alg x y = algorithmName alg ++ ": " ++ show x ++ " " ++ show y
 
 simulateSequential :: Double -> [Algorithm] -> [Point] -> [Output]
-simulateSequential step algorithms points = go [] (initialAlgoStates algorithms) points
+simulateSequential step algorithms = go [] (initialAlgoStates algorithms)
   where
     go :: [Point] -> [AlgoState] -> [Point] -> [Output]
     go _ _ [] = []
-    go seen states (p:rest) =
+    go seen states (p : rest) =
       let seen' = seen ++ [p]
           (states', outputs) = advanceAlgorithms step seen' states
        in outputs ++ go seen' states' rest
